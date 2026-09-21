@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /conta
+Disallow: /api/

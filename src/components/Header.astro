@@ -1,0 +1,21 @@
+---
+const user = Astro.locals.user;
+---
+
+<header class="site-header">
+  <div class="container">
+    <a href="/" class="brand">Plataforma 3D</a>
+    <nav aria-label="Principal">
+      {
+        user ? (
+          <a href="/conta" class="nav-account">Minha conta</a>
+        ) : (
+          <>
+            <a href="/cadastro" class="nav-account">Criar conta</a>
+            <a href="/entrar" class="btn btn-ghost">Entrar</a>
+          </>
+        )
+      }
+    </nav>
+  </div>
+</header>

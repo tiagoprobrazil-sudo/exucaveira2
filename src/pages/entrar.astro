@@ -1,0 +1,19 @@
+---
+import Base from '../layouts/Base.astro';
+import EntrarForm from '../components/EntrarForm';
+
+if (Astro.locals.user) {
+  return Astro.redirect('/conta');
+}
+
+const nextParam = Astro.url.searchParams.get('next');
+const next = nextParam && nextParam.startsWith('/') ? nextParam : '/conta';
+---
+
+<Base title="Entrar" noindex>
+  <section class="auth-page">
+    <div class="container">
+      <EntrarForm client:load next={next} />
+    </div>
+  </section>
+</Base>

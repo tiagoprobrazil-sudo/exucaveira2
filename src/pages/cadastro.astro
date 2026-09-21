@@ -1,0 +1,19 @@
+---
+import Base from '../layouts/Base.astro';
+import CadastroForm from '../components/CadastroForm';
+import { isRoleSlug } from '../types/auth';
+
+// O parâmetro da URL só serve de atalho de UX — nunca é confiado sozinho.
+// Se vier algo fora do conjunto permitido, ignoramos e deixamos o usuário
+// escolher no próprio formulário.
+const perfilParam = Astro.url.searchParams.get('perfil');
+const perfilInicial = isRoleSlug(perfilParam) ? perfilParam : null;
+---
+
+<Base title="Criar conta" noindex>
+  <section class="auth-page">
+    <div class="container">
+      <CadastroForm client:load perfilInicial={perfilInicial} />
+    </div>
+  </section>
+</Base>

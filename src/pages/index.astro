@@ -1,0 +1,50 @@
+---
+import Base from '../layouts/Base.astro';
+
+const opcoes = [
+  {
+    perfil: 'modelador',
+    titulo: 'Eu crio modelos 3D',
+    descricao: 'Publique suas criações e permita que produtores autorizados transformem seus modelos em peças físicas.',
+    cta: 'Sou modelador',
+  },
+  {
+    perfil: 'produtor',
+    titulo: 'Eu produzo peças',
+    descricao: 'Encontre modelos para oferecer em sua loja e venda suas impressões, acabamentos e pinturas.',
+    cta: 'Sou produtor',
+  },
+  {
+    perfil: 'cliente',
+    titulo: 'Quero comprar',
+    descricao: 'Encontre modelos e profissionais para produzir a peça que você procura.',
+    cta: 'Quero comprar',
+  },
+] as const;
+---
+
+<Base title="Como você quer fazer parte?">
+  <section class="hero">
+    <div class="container">
+      <h1>Como você quer fazer parte?</h1>
+      <p class="lead">
+        Uma plataforma que conecta quem cria modelos 3D, quem transforma esses modelos em peças físicas e quem
+        procura uma peça pronta.
+      </p>
+
+      <div class="profile-choices">
+        {
+          opcoes.map((opcao) => (
+            <a class="profile-card" href={`/cadastro?perfil=${opcao.perfil}`}>
+              <h2>{opcao.titulo}</h2>
+              <p>{opcao.descricao}</p>
+              <span class="btn btn-primary" aria-hidden="true">
+                {opcao.cta}
+              </span>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</Base>

@@ -1,0 +1,52 @@
+---
+import Base from '../layouts/Base.astro';
+import { getAccountData } from '../lib/auth/roles';
+
+// Middleware já garante que só chegamos aqui autenticados.
+const user = Astro.locals.user!;
+const supabase = Astro.locals.supabase!;
+
+const { profile, roles } = await getAccountData(supabase, user.id);
+const nome = profile?.display_name?.trim() || user.email || 'você';
+---
+
+<Base title="Minha conta" noindex>
+  <section class="account-page">
+    <div class="container">
+      <div class="account-card">
+        <h1>Olá, {nome}.</h1>
+
+        <div class="account-field">
+          <div class="label">Nome</div>
+          <div class="value">{profile?.display_name || '—'}</div>
+        </div>
+
+        <div class="account-field">
+          <div class="label">E-mail</div>
+          <div class="value">{user.email}</div>
+        </div>
+
+        <div class="account-field">
+          <div class="label">Perfis</div>
+          {
+            roles.length > 0 ? (
+              <ul class="role-list">
+                {roles.map((role) => (
+                  <li class="role-pill">{role.name}</li>
+                ))}
+              </ul>
+            ) : (
+              <p>Nenhum perfil associado ainda.</p>
+            )
+          }
+        </div>
+
+        <div class="account-actions">
+          <form action="/sair" method="post">
+            <button type="submit" class="btn btn-ghost">Sair</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>

@@ -1,0 +1,8 @@
+---
+// Só aceita POST (chamado pelo <form> de /conta) — evita logout via link
+// simples/CSRF trivial por GET.
+if (Astro.request.method === 'POST' && Astro.locals.supabase) {
+  await Astro.locals.supabase.auth.signOut();
+}
+return Astro.redirect('/');
+---
