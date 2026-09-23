@@ -10,5 +10,14 @@
 	},
 	"observability": {
 		"enabled": true
+	},
+	"vars": {
+		"SUPABASE_URL": "https://lehsmhnrvxfhhiedkkcl.supabase.co",
+		"SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxlaHNtaG5ydnhmaGhpZWRra2NsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NDQ3ODUsImV4cCI6MjEwNTUyMDc4NX0.xJh-P8Xk8PY0xaBRlv0DO5uf5oBzYGqp7haDfrZTbY4",
+		"PUBLIC_SUPABASE_URL": "https://lehsmhnrvxfhhiedkkcl.supabase.co",
+		"PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxlaHNtaG5ydnhmaGhpZWRra2NsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NDQ3ODUsImV4cCI6MjEwNTUyMDc4NX0.xJh-P8Xk8PY0xaBRlv0DO5uf5oBzYGqp7haDfrZTbY4"
 	}
+	// SUPABASE_SERVICE_ROLE_KEY é secreta e NUNCA vai aqui — configurar via
+	// `wrangler secret put SUPABASE_SERVICE_ROLE_KEY` ou no painel do Worker
+	// (Settings → Variables → Encrypt) depois que o Worker existir.
 }
