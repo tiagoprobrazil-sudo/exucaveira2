@@ -100,15 +100,62 @@ pelo adapter Cloudflare — para validar middleware/sessão, use `wrangler dev`.
      ```jsonc
      "kv_namespaces": [{ "binding": "SESSION", "id": "<id do namespace>" }]
      ```
-2. **Decidir como `www.exucaveira.com.br/ww2` vai apontar pro Worker** —
-   o domínio hoje **não está atrás da Cloudflare** (é hospedagem
-   cPanel/LiteSpeed direta, mesma do site atual), diferente do Tampinha
-   Legal. Isso precisa de uma decisão consciente antes do deploy final:
-   mover o domínio inteiro para a Cloudflare tem impacto em e-mail e
-   outros registros DNS existentes.
+2. **Decidido (2026-09-23): subdomínio `ww2.exucaveira.com.br`**, não
+   `/ww2` como path — o domínio raiz não está na Cloudflare e o Tiago
+   preferiu não migrar as nameservers (evita risco em MX/e-mail e no site
+   atual). Caminho técnico: delegar só o subdomínio via registro **NS** no
+   provedor DNS atual do domínio, apontando pras nameservers que a
+   Cloudflare atribuir a uma zona nova "ww2.exucaveira.com.br" — os
+   registros do domínio raiz (A, MX, etc.) não são tocados. Ver passo a
+   passo em "Deploy — passo a passo" abaixo.
 3. Confirmar se a confirmação de e-mail deve continuar ativada no projeto
    Supabase (hoje está — `CadastroForm` já trata os dois casos, com ou
    sem confirmação).
+
+## Deploy — passo a passo (partes que só dá pra fazer logado nas contas)
+
+Nada disso o Claude consegue fazer sozinho neste ambiente — `gh` e
+`wrangler` não estão autenticados aqui, e criar repositório/zona DNS exige
+login nas contas reais do Tiago.
+
+1. **Criar o repositório no GitHub** (github.com/new, ex: `exucaveira-ww2`,
+   privado ou público, sem README/gitignore — o projeto já tem os dele):
+   ```bash
+   git remote add origin https://github.com/<seu-usuario>/exucaveira-ww2.git
+   git push -u origin master
+   ```
+2. **Cloudflare → Workers & Pages → Create application → Import a Git
+   repository** → conectar o repo `exucaveira-ww2` recém-criado. Build
+   command `npm run build`, output do adapter já é gerenciado pelo
+   `wrangler.jsonc` do próprio repo (Workers Builds lê esse arquivo
+   automaticamente).
+3. **Criar o KV namespace de sessão**: Workers & Pages → KV → Create a
+   namespace (ex: `exucaveira-ww2-sessions`) → copiar o `id` gerado →
+   editar `wrangler.jsonc` local adicionando:
+   ```jsonc
+   "kv_namespaces": [{ "binding": "SESSION", "id": "<id copiado>" }]
+   ```
+   → commit + push (Workers Builds reimplanta automaticamente a cada push).
+4. **Configurar o secret**: no Worker recém-criado → Settings → Variables
+   and Secrets → adicionar `SUPABASE_SERVICE_ROLE_KEY` como **Secret**
+   (nunca como var normal, nunca no `wrangler.jsonc`) com o valor que está
+   em `.dev.vars` local.
+5. **Subdomínio `ww2.exucaveira.com.br`** (decisão de 2026-09-23 — sem
+   mexer no domínio raiz nem no e-mail):
+   - Cloudflare → Add a Site → digitar `ww2.exucaveira.com.br` (a
+     Cloudflare trata isso como uma zona própria, separada do domínio
+     raiz).
+   - A Cloudflare vai dar 2 nameservers pra essa zona nova.
+   - No provedor DNS atual do domínio (onde `exucaveira.com.br` está
+     hospedado hoje — Registro.br ou o painel do próprio host cPanel),
+     criar um registro **NS** para o host `ww2` apontando pras 2
+     nameservers da Cloudflare. Isso delega só o `ww2`, sem tocar em A/MX/
+     outros registros do domínio raiz.
+   - Depois que a zona `ww2.exucaveira.com.br` estiver ativa na
+     Cloudflare, ir no Worker → Settings → Domains & Routes → Add Custom
+     Domain → `ww2.exucaveira.com.br`.
+6. Testar `ww2.exucaveira.com.br` no ar antes de divulgar (propagação de
+   NS pode levar de minutos a algumas horas).
 
 ## O que foi propositalmente deixado de fora (ver escopo original)
 
