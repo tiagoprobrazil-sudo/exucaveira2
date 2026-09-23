@@ -86,9 +86,20 @@ pelo adapter Cloudflare — para validar middleware/sessão, use `wrangler dev`.
 ## O que falta para colocar no ar
 
 1. **Criar o Worker no Cloudflare** (Workers Builds conectado a um repo
-   GitHub, como os outros projetos do portfólio) e configurar as env vars
-   lá (as não-secretas podem ir direto no `wrangler.jsonc`, como no
-   projeto Tee Aqua — evita que se percam em edições manuais no painel).
+   GitHub, como os outros projetos do portfólio). As env vars não-secretas
+   (`SUPABASE_URL`, `SUPABASE_ANON_KEY`, `PUBLIC_SUPABASE_URL`,
+   `PUBLIC_SUPABASE_ANON_KEY`) já estão em `wrangler.jsonc` (bloco `vars`)
+   — só falta `SUPABASE_SERVICE_ROLE_KEY` como secret no painel do Worker
+   depois que ele existir.
+   - **KV namespace de sessão pendente**: o adapter `@astrojs/cloudflare`
+     injeta automaticamente um binding `SESSION` (`kv_namespaces` no
+     `wrangler.jsonc` gerado em `dist/server/wrangler.json`), mas sem um
+     `id` real de namespace ele não faz deploy em produção. Precisa criar
+     um KV namespace no painel Cloudflare (Workers & Pages → KV → Create)
+     e adicionar em `wrangler.jsonc`:
+     ```jsonc
+     "kv_namespaces": [{ "binding": "SESSION", "id": "<id do namespace>" }]
+     ```
 2. **Decidir como `www.exucaveira.com.br/ww2` vai apontar pro Worker** —
    o domínio hoje **não está atrás da Cloudflare** (é hospedagem
    cPanel/LiteSpeed direta, mesma do site atual), diferente do Tampinha
