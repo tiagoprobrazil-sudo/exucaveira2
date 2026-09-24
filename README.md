@@ -85,21 +85,20 @@ pelo adapter Cloudflare — para validar middleware/sessão, use `wrangler dev`.
 
 ## O que falta para colocar no ar
 
-1. **Criar o Worker no Cloudflare** (Workers Builds conectado a um repo
-   GitHub, como os outros projetos do portfólio). As env vars não-secretas
-   (`SUPABASE_URL`, `SUPABASE_ANON_KEY`, `PUBLIC_SUPABASE_URL`,
-   `PUBLIC_SUPABASE_ANON_KEY`) já estão em `wrangler.jsonc` (bloco `vars`)
-   — só falta `SUPABASE_SERVICE_ROLE_KEY` como secret no painel do Worker
-   depois que ele existir.
-   - **KV namespace de sessão pendente**: o adapter `@astrojs/cloudflare`
-     injeta automaticamente um binding `SESSION` (`kv_namespaces` no
-     `wrangler.jsonc` gerado em `dist/server/wrangler.json`), mas sem um
-     `id` real de namespace ele não faz deploy em produção. Precisa criar
-     um KV namespace no painel Cloudflare (Workers & Pages → KV → Create)
-     e adicionar em `wrangler.jsonc`:
-     ```jsonc
-     "kv_namespaces": [{ "binding": "SESSION", "id": "<id do namespace>" }]
-     ```
+1. ~~Criar o Worker no Cloudflare~~ — **feito em 2026-09-23**: Worker
+   `exucaveira2` publicado via Workers Builds a partir do repo
+   [github.com/tiagoprobrazil-sudo/exucaveira2](https://github.com/tiagoprobrazil-sudo/exucaveira2),
+   deploy automático a cada push, no ar em
+   `https://exucaveira2.tiagoprobrazil.workers.dev`. Faltou só configurar
+   o **Build command** no painel (`npm run build`) — o padrão do Workers
+   Builds veio vazio e pulava direto pro deploy sem gerar o `dist/`.
+   - KV namespace de sessão foi **auto-provisionado pelo próprio
+     `wrangler deploy`** no primeiro deploy real (`exucaveira2-session`,
+     id fixado em `wrangler.jsonc` logo em seguida pra não recriar um
+     namespace novo — e perder as sessões — a cada deploy futuro).
+   - Ainda falta: `SUPABASE_SERVICE_ROLE_KEY` como **Secret** no painel do
+     Worker (Settings → Variables and Secrets) — nenhum endpoint usa ainda,
+     mas fica pronto pra quando precisar ignorar RLS.
 2. **Decidido (2026-09-23): subdomínio `ww2.exucaveira.com.br`**, não
    `/ww2` como path — o domínio raiz não está na Cloudflare e o Tiago
    preferiu não migrar as nameservers (evita risco em MX/e-mail e no site
@@ -114,33 +113,21 @@ pelo adapter Cloudflare — para validar middleware/sessão, use `wrangler dev`.
 
 ## Deploy — passo a passo (partes que só dá pra fazer logado nas contas)
 
-Nada disso o Claude consegue fazer sozinho neste ambiente — `gh` e
-`wrangler` não estão autenticados aqui, e criar repositório/zona DNS exige
-login nas contas reais do Tiago.
+Passos 1 e 2 já foram feitos em 2026-09-23. Restam 3 e 4 — precisam de
+login nas contas reais do Tiago (Cloudflare/DNS).
 
-1. **Criar o repositório no GitHub** (github.com/new, ex: `exucaveira-ww2`,
-   privado ou público, sem README/gitignore — o projeto já tem os dele):
-   ```bash
-   git remote add origin https://github.com/<seu-usuario>/exucaveira-ww2.git
-   git push -u origin master
-   ```
-2. **Cloudflare → Workers & Pages → Create application → Import a Git
-   repository** → conectar o repo `exucaveira-ww2` recém-criado. Build
-   command `npm run build`, output do adapter já é gerenciado pelo
-   `wrangler.jsonc` do próprio repo (Workers Builds lê esse arquivo
-   automaticamente).
-3. **Criar o KV namespace de sessão**: Workers & Pages → KV → Create a
-   namespace (ex: `exucaveira-ww2-sessions`) → copiar o `id` gerado →
-   editar `wrangler.jsonc` local adicionando:
-   ```jsonc
-   "kv_namespaces": [{ "binding": "SESSION", "id": "<id copiado>" }]
-   ```
-   → commit + push (Workers Builds reimplanta automaticamente a cada push).
-4. **Configurar o secret**: no Worker recém-criado → Settings → Variables
+1. ~~Criar o repositório no GitHub~~ — feito:
+   [github.com/tiagoprobrazil-sudo/exucaveira2](https://github.com/tiagoprobrazil-sudo/exucaveira2),
+   branch `master`.
+2. ~~Cloudflare → Workers & Pages → Create application → Import a Git
+   repository~~ — feito: Worker `exucaveira2` conectado, Build command
+   `npm run build` configurado, deploy automático a cada push confirmado
+   funcionando.
+3. **Configurar o secret**: no Worker `exucaveira2` → Settings → Variables
    and Secrets → adicionar `SUPABASE_SERVICE_ROLE_KEY` como **Secret**
    (nunca como var normal, nunca no `wrangler.jsonc`) com o valor que está
    em `.dev.vars` local.
-5. **Subdomínio `ww2.exucaveira.com.br`** (decisão de 2026-09-23 — sem
+4. **Subdomínio `ww2.exucaveira.com.br`** (decisão de 2026-09-23 — sem
    mexer no domínio raiz nem no e-mail):
    - Cloudflare → Add a Site → digitar `ww2.exucaveira.com.br` (a
      Cloudflare trata isso como uma zona própria, separada do domínio
@@ -154,8 +141,9 @@ login nas contas reais do Tiago.
    - Depois que a zona `ww2.exucaveira.com.br` estiver ativa na
      Cloudflare, ir no Worker → Settings → Domains & Routes → Add Custom
      Domain → `ww2.exucaveira.com.br`.
-6. Testar `ww2.exucaveira.com.br` no ar antes de divulgar (propagação de
-   NS pode levar de minutos a algumas horas).
+5. Testar `ww2.exucaveira.com.br` no ar antes de divulgar (propagação de
+   NS pode levar de minutos a algumas horas). Enquanto isso, o site já
+   está acessível via `https://exucaveira2.tiagoprobrazil.workers.dev`.
 
 ## O que foi propositalmente deixado de fora (ver escopo original)
 

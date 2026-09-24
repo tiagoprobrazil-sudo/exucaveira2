@@ -2,7 +2,7 @@
 	"$schema": "./node_modules/wrangler/config-schema.json",
 	"compatibility_date": "2026-09-18",
 	"compatibility_flags": ["global_fetch_strictly_public"],
-	"name": "exucaveira-ww2",
+	"name": "exucaveira2",
 	"main": "@astrojs/cloudflare/entrypoints/server",
 	"assets": {
 		"directory": "./dist/client",
@@ -11,6 +11,9 @@
 	"observability": {
 		"enabled": true
 	},
+	"kv_namespaces": [
+		{ "binding": "SESSION", "id": "a0732f906dc14b518131358095c03391" }
+	],
 	"vars": {
 		"SUPABASE_URL": "https://lehsmhnrvxfhhiedkkcl.supabase.co",
 		"SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxlaHNtaG5ydnhmaGhpZWRra2NsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NDQ3ODUsImV4cCI6MjEwNTUyMDc4NX0.xJh-P8Xk8PY0xaBRlv0DO5uf5oBzYGqp7haDfrZTbY4",
